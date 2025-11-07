@@ -5,7 +5,7 @@ scispacy==0.5.3
 spacy>=3.7.0
 beautifulsoup4==4.12.2
 python-dotenv==1.0.0
-pydantic==2.5.3
+pydantic>=2.9.0
 openai==1.12.0
 PyPDF2==3.0.1
 perplexityai==0.20.0
