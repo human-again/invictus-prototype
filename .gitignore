@@ -76,3 +76,6 @@ htmlcov/
 .railway/
 .render/
 
+# MCP Configuration (contains API keys)
+.cursor-mcp-config.json
+
