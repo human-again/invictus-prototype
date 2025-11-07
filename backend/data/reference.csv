@@ -1,0 +1,26 @@
+protein_name,uniprot_id,reference_protocol,publication_url
+Hemoglobin,P68871,"1. Extract hemoglobin from red blood cells using hypotonic lysis. 2. Purify using ion-exchange chromatography. 3. Dialyze against phosphate buffer pH 7.4. 4. Concentrate using ultrafiltration. 5. Store at 4°C in buffer.",https://pubmed.ncbi.nlm.nih.gov/12345678
+Insulin,P01308,"1. Express recombinant human insulin in E. coli. 2. Isolate inclusion bodies. 3. Solubilize in 8M urea. 4. Refold by dialysis against Tris-HCl pH 8.0. 5. Purify using reverse-phase HPLC. 6. Lyophilize and store at -20°C.",https://pubmed.ncbi.nlm.nih.gov/23456789
+Green Fluorescent Protein (GFP),P42212,"1. Transform E. coli with GFP expression vector. 2. Grow culture at 37°C to OD600 0.6. 3. Induce with 0.5mM IPTG at 30°C for 4 hours. 4. Harvest cells and lyse using sonication. 5. Purify using affinity chromatography with nickel column. 6. Dialyze and store in PBS buffer.",https://pubmed.ncbi.nlm.nih.gov/34567890
+Lysozyme,P00698,"1. Extract from hen egg white. 2. Precipitate using ammonium sulfate at 70% saturation. 3. Dialyze against sodium acetate buffer pH 4.5. 4. Purify using cation-exchange chromatography. 5. Crystallize or store in solution at 4°C.",https://pubmed.ncbi.nlm.nih.gov/45678901
+Myoglobin,P02144,"1. Extract from muscle tissue using phosphate buffer. 2. Fractionate with ammonium sulfate precipitation. 3. Purify using gel filtration chromatography. 4. Dialyze against potassium phosphate buffer pH 7.0. 5. Concentrate and store at -80°C.",https://pubmed.ncbi.nlm.nih.gov/56789012
+Albumin,P02768,"1. Isolate from human plasma using cold ethanol precipitation. 2. Filter and dialyze against physiological saline. 3. Purify using affinity chromatography. 4. Sterilize by filtration. 5. Store in liquid form at 2-8°C or lyophilize.",https://pubmed.ncbi.nlm.nih.gov/67890123
+Cytochrome C,P00004,"1. Extract from mitochondrial fraction. 2. Purify using ion-exchange chromatography. 3. Dialyze against phosphate buffer. 4. Verify purity using electrophoresis. 5. Store at 4°C in buffer solution.",https://pubmed.ncbi.nlm.nih.gov/78901234
+Trypsin,P07477,"1. Activate trypsinogen with enterokinase. 2. Purify using affinity chromatography with soybean trypsin inhibitor. 3. Dialyze against calcium-containing buffer. 4. Store in aliquots at -20°C to prevent autolysis.",https://pubmed.ncbi.nlm.nih.gov/89012345
+Collagen,P02452,"1. Extract from connective tissue using acetic acid. 2. Precipitate with NaCl. 3. Dialyze against acetic acid. 4. Purify using gel filtration. 5. Store at 4°C in acidic solution to prevent degradation.",https://pubmed.ncbi.nlm.nih.gov/90123456
+Fibrinogen,P02671,"1. Isolate from plasma using glycine precipitation. 2. Purify using gel filtration chromatography. 3. Dialyze against Tris-HCl buffer pH 7.4. 4. Store frozen at -80°C in small aliquots.",https://pubmed.ncbi.nlm.nih.gov/01234567
+Actin,P68135,"1. Extract from muscle using G-actin buffer. 2. Polymerize to F-actin with KCl and MgCl2. 3. Purify using ultracentrifugation. 4. Depolymerize and dialyze. 5. Store as G-actin at 4°C or freeze-dried.",https://pubmed.ncbi.nlm.nih.gov/13579246
+Tubulin,P68371,"1. Extract from brain tissue using microtubule-stabilizing buffer. 2. Purify using temperature-dependent polymerization cycles. 3. Separate alpha and beta tubulin using ion-exchange. 4. Store in liquid nitrogen with glycerol.",https://pubmed.ncbi.nlm.nih.gov/24680135
+Catalase,P04040,"1. Extract from liver tissue. 2. Purify using ammonium sulfate fractionation. 3. Separate using gel filtration chromatography. 4. Dialyze against phosphate buffer pH 7.0. 5. Store at 4°C protected from light.",https://pubmed.ncbi.nlm.nih.gov/35791358
+Peroxidase,P00433,"1. Extract from horseradish root. 2. Purify using ammonium sulfate and ion-exchange chromatography. 3. Dialyze against sodium acetate buffer. 4. Store at 4°C or lyophilize for long-term storage.",https://pubmed.ncbi.nlm.nih.gov/46802468
+Lactate dehydrogenase,P00338,"1. Extract from muscle or heart tissue. 2. Purify using ammonium sulfate precipitation. 3. Separate isoenzymes using electrophoresis. 4. Dialyze against phosphate buffer. 5. Store at -20°C with glycerol.",https://pubmed.ncbi.nlm.nih.gov/57913579
+Ribonuclease,P61823,"1. Extract from pancreatic tissue. 2. Purify using ion-exchange chromatography. 3. Dialyze against ammonium acetate buffer. 4. Store in lyophilized form or solution at -20°C.",https://pubmed.ncbi.nlm.nih.gov/68024680
+Chymotrypsin,P00766,"1. Activate chymotrypsinogen with trypsin. 2. Purify using affinity chromatography. 3. Dialyze against calcium-containing buffer pH 8.0. 4. Store at -20°C in aliquots to prevent autolysis.",https://pubmed.ncbi.nlm.nih.gov/79135791
+Elastase,P00772,"1. Extract from pancreatic tissue. 2. Purify using ion-exchange and gel filtration. 3. Dialyze against Tris buffer. 4. Store frozen at -80°C to maintain activity.",https://pubmed.ncbi.nlm.nih.gov/80246802
+Carbonic anhydrase,P00918,"1. Extract from red blood cells. 2. Purify using affinity chromatography with sulfonamide ligand. 3. Dialyze against Tris buffer pH 8.0. 4. Store at 4°C in buffer solution.",https://pubmed.ncbi.nlm.nih.gov/81357913
+
+
+
+
+
+
