@@ -1,12 +1,12 @@
 services:
   - type: web
     name: invictus-plan-backend
-    env: python
-    buildCommand: bash build.sh
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    # No startCommand needed - Dockerfile CMD is used
+    # No buildCommand needed - Dockerfile handles the build
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.18
       - key: PORT
         value: 8000
     healthCheckPath: /
