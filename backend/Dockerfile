@@ -22,7 +22,6 @@ COPY . .
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 
 # Expose port
 EXPOSE 8000
@@ -31,7 +30,14 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/ || exit 1
 
-# Run application
-# Use PORT environment variable if provided (Render sets this)
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Create entrypoint script to handle PORT variable
+RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
+    echo 'exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}' >> /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh && \
+    chown appuser:appuser /app/entrypoint.sh
+
+USER appuser
+
+# Run application using entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
 
