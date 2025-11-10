@@ -18,6 +18,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Download spaCy model (do this before copying code for better caching)
 RUN python -m spacy download en_core_web_sm
 
+# Copy entrypoint script early (before COPY . . to ensure it's available)
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Copy application code
 COPY . .
 
@@ -31,11 +35,6 @@ EXPOSE 8000
 # Health check (uses default port 8000 - Railway will handle port routing)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8000/ || exit 1
-
-# Copy entrypoint script
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh && \
-    chown appuser:appuser /app/entrypoint.sh
 
 USER appuser
 
