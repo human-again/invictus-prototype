@@ -1,15 +1,15 @@
 # MCP Server Configuration Guide
 
-This guide explains how to set up Model Context Protocol (MCP) servers for Render and GitHub integration in Cursor.
+This guide explains how to set up Model Context Protocol (MCP) servers for Railway and GitHub integration in Cursor.
 
 ## Overview
 
-MCP servers allow Cursor to interact with external services like Render (for real-time log monitoring) and GitHub (for repository management and debugging).
+MCP servers allow Cursor to interact with external services like Railway (for deployment management) and GitHub (for repository management and debugging).
 
 ## Prerequisites
 
 - Cursor IDE installed
-- Render account with API access
+- Railway account with API access (optional)
 - GitHub account with appropriate permissions
 
 ## Configuration Location
@@ -24,40 +24,24 @@ Alternatively, configure through Cursor Settings UI:
 2. Search for "MCP" or "Model Context Protocol"
 3. Add server configurations
 
-## Render MCP Server Setup
+## Railway MCP Server Setup (Optional)
 
 ### Purpose
-Monitor Render deployment logs in real-time, view service status, and debug deployment issues.
+Monitor Railway deployments, view service status, and manage deployments through Cursor.
 
 ### Configuration
 
-Add the following to your MCP configuration:
+Railway MCP integration can be configured if you have Railway API access. Check Railway documentation for MCP server availability.
 
-```json
-{
-  "mcpServers": {
-    "render": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-render"
-      ],
-      "env": {
-        "RENDER_API_KEY": "your_render_api_key_here"
-      }
-    }
-  }
-}
-```
+For now, Railway deployments are best managed through:
+- Railway Dashboard: https://railway.app
+- Railway CLI: https://docs.railway.app/develop/cli
 
-### Getting Your Render API Key
+**Note**: After configuring, you'll need to:
+1. Restart Cursor for the MCP server to connect
+2. Railway MCP integration may require Railway API access - check Railway documentation for current MCP support
 
-1. Log in to [Render Dashboard](https://dashboard.render.com)
-2. Go to **Account Settings** → **API Keys**
-3. Click **Create API Key**
-4. Copy the API key and add it to the configuration above
-
-### Features Available
+### Features Available (if Railway MCP is available)
 
 - View real-time service logs
 - Monitor deployment status
@@ -66,11 +50,11 @@ Add the following to your MCP configuration:
 - Manage environment variables
 - Restart services
 
-### Usage Examples
+### Usage Examples (if Railway MCP is available)
 
 Once configured, you can use commands like:
-- "Show me the latest Render logs"
-- "What's the status of my Render deployment?"
+- "Show me the latest Railway logs"
+- "What's the status of my Railway deployment?"
 - "Stream the logs from my backend service"
 
 ## GitHub MCP Server Setup
@@ -133,21 +117,11 @@ Once configured, you can use commands like:
 
 ## Complete Configuration Example
 
-Here's a complete MCP configuration with both servers:
+Here's a complete MCP configuration with GitHub server:
 
 ```json
 {
   "mcpServers": {
-    "render": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-render"
-      ],
-      "env": {
-        "RENDER_API_KEY": "rnd_your_render_api_key_here"
-      }
-    },
     "github": {
       "command": "npx",
       "args": [
@@ -169,16 +143,6 @@ Instead of hardcoding API keys in the configuration, you can use environment var
 ```json
 {
   "mcpServers": {
-    "render": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-render"
-      ],
-      "env": {
-        "RENDER_API_KEY": "${RENDER_API_KEY}"
-      }
-    },
     "github": {
       "command": "npx",
       "args": [
@@ -195,7 +159,6 @@ Instead of hardcoding API keys in the configuration, you can use environment var
 
 Then set the environment variables in your shell:
 ```bash
-export RENDER_API_KEY="your_key"
 export GITHUB_TOKEN="your_token"
 ```
 
@@ -208,12 +171,6 @@ After configuring, restart Cursor and verify the MCP servers are connected:
 3. You should see indicators that the servers are connected
 
 ## Troubleshooting
-
-### Render MCP Issues
-
-- **"API key invalid"**: Verify your API key in Render dashboard
-- **"Cannot connect"**: Check your internet connection and Render service status
-- **"Permission denied"**: Ensure your API key has the necessary permissions
 
 ### GitHub MCP Issues
 
@@ -238,7 +195,7 @@ After configuring, restart Cursor and verify the MCP servers are connected:
 ## Additional Resources
 
 - [MCP Documentation](https://modelcontextprotocol.io)
-- [Render API Documentation](https://render.com/docs/api)
+- [Railway Documentation](https://docs.railway.app)
 - [GitHub API Documentation](https://docs.github.com/en/rest)
 - [Cursor MCP Guide](https://cursor.sh/docs/mcp)
 
@@ -246,8 +203,8 @@ After configuring, restart Cursor and verify the MCP servers are connected:
 
 After setting up MCP servers:
 
-1. Test Render integration by asking Cursor to show deployment logs
-2. Test GitHub integration by asking Cursor to show repository information
-3. Use MCP features to debug deployment issues in real-time
-4. Integrate GitHub workflows for automated deployments
+1. Test GitHub integration by asking Cursor to show repository information
+2. Use MCP features to manage GitHub repositories and issues
+3. Integrate GitHub workflows for automated deployments
+4. Monitor Railway deployments through Railway Dashboard or CLI
 

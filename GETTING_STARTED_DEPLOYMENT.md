@@ -96,11 +96,10 @@ NEXT_PUBLIC_API_URL=https://your-backend-url.com  # Your backend URL
 | Platform | Best For | Free Tier |
 |----------|----------|-----------|
 | **Railway** | Quick deployment, ease of use | $5 credit/month |
-| **Render** | Free tier, simple apps | Yes (spins down) |
 | **Fly.io** | Performance, global edge | 3 VMs free |
 | **DigitalOcean** | Reliability, paid service | No |
 
-**Recommendation**: Start with **Railway** or **Render** for easiest setup.
+**Recommendation**: Start with **Railway** for easiest setup with Docker support.
 
 See `BACKEND_DEPLOYMENT_OPTIONS.md` for detailed comparison.
 
@@ -134,8 +133,8 @@ Before going live, ensure:
 
 ✅ **Backend**
 - `Dockerfile` ready for container deployment
-- `railway.json` configured for Railway
-- `render.yaml` configured for Render
+- `railway.json` configured for Railway (Docker deployment)
+- `entrypoint.sh` script for Railway PORT handling
 - `.dockerignore` created
 - Health check endpoint at `/`
 
@@ -180,7 +179,6 @@ Before going live, ensure:
 
 - **Vercel**: https://vercel.com/docs
 - **Railway**: https://docs.railway.app
-- **Render**: https://render.com/docs
 - **Fly.io**: https://fly.io/docs
 
 ## ✅ Success Checklist
@@ -221,8 +219,8 @@ After successful deployment:
 - `.gitignore` - ✅ Properly configured
 - `frontend/vercel.json` - ✅ Security headers configured
 - `backend/Dockerfile` - ✅ Ready for deployment
-- `backend/railway.json` - ✅ Railway config
-- `backend/render.yaml` - ✅ Render config
+- `backend/railway.json` - ✅ Railway config (Docker)
+- `backend/entrypoint.sh` - ✅ Entrypoint script for Railway
 - `DEPLOYMENT.md` - ✅ Comprehensive guide
 - `SECURITY.md` - ✅ Security best practices
 

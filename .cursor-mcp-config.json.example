@@ -1,13 +1,9 @@
 {
   "mcpServers": {
     "render": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-render"
-      ],
-      "env": {
-        "RENDER_API_KEY": "your_render_api_key_here"
+      "url": "https://mcp.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer your_render_api_key_here"
       }
     },
     "github": {

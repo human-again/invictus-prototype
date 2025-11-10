@@ -20,7 +20,7 @@ This document outlines security best practices and considerations for the Invict
 ### ✅ Best Practices
 
 - **Never commit `.env` files** - They are already in `.gitignore`
-- **Use platform secrets management** - Vercel, Railway, Render all provide secure secret storage
+- **Use platform secrets management** - Vercel, Railway, Fly.io all provide secure secret storage
 - **Rotate keys regularly** - Especially API keys and secrets
 - **Use different keys for dev/staging/prod** - Never reuse production keys in development
 - **Limit access** - Only grant access to secrets to necessary team members
@@ -257,7 +257,7 @@ async def compare_search(
 
 ### Current Status
 
-✅ Most hosting platforms (Vercel, Railway, Render, Fly.io) provide automatic HTTPS.
+✅ Most hosting platforms (Vercel, Railway, Fly.io) provide automatic HTTPS.
 
 ### ✅ Best Practices
 

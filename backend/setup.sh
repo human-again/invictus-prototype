@@ -22,3 +22,6 @@ echo "OLLAMA_MODEL=llama3:8b"
 
 
 
+
+
+

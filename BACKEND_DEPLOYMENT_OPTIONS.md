@@ -4,7 +4,7 @@ This document provides detailed information about backend deployment options for
 
 ## 🎯 Quick Recommendation
 
-**For Most Users**: Start with **Railway** (easiest) or **Render** (free tier)  
+**For Most Users**: Start with **Railway** (easiest, Docker support)  
 **For Performance**: Use **Fly.io** (global edge, excellent performance)  
 **For Enterprise**: Use **AWS/GCP/Azure** (maximum control and scalability)
 
@@ -79,74 +79,7 @@ The `backend/railway.json` file is already configured for Railway.
 
 ---
 
-## Option 2: Render
-
-### Overview
-Render is a cloud platform that provides free hosting with automatic SSL and deployments from Git.
-
-### Pros
-- ✅ **Free tier available** - Good for getting started
-- ✅ **Easy setup** - Similar to Railway
-- ✅ **Automatic SSL** - HTTPS included
-- ✅ **Automatic deployments** - Deploys on Git push
-- ✅ **Good documentation** - Clear guides
-- ✅ **Multiple services** - Can host multiple services
-
-### Cons
-- ⚠️ **Free tier spins down** - Cold starts after inactivity (15 minutes)
-- ⚠️ **Slower on free tier** - Limited resources
-- ⚠️ **Build time limits** - Free tier has limits
-
-### Pricing
-- **Free**: Spins down after 15 min inactivity
-- **Starter**: $7/month (always on)
-- **Standard**: $25/month (better performance)
-
-### Setup Steps
-
-1. **Sign up** at https://render.com (use GitHub login)
-
-2. **Create New Web Service**
-   - Click "New +" → "Web Service"
-   - Connect GitHub repository
-   - Select repository and branch
-
-3. **Configure Service**
-   - **Name**: invictus-plan-backend
-   - **Environment**: Python 3
-   - **Region**: Choose closest to users
-   - **Branch**: main
-   - **Root Directory**: `backend`
-   - **Build Command**: 
-     ```bash
-     pip install -r requirements.txt && python -m spacy download en_core_web_sm
-     ```
-   - **Start Command**: 
-     ```bash
-     uvicorn main:app --host 0.0.0.0 --port $PORT
-     ```
-   - **Instance Type**: Free (or Starter for always-on)
-
-4. **Add Environment Variables**
-   - Go to Environment section
-   - Add all required variables
-
-5. **Deploy**
-   - Click "Create Web Service"
-   - Render builds and deploys automatically
-
-### Configuration File
-The `backend/render.yaml` file is already configured for Render.
-
-### Best For
-- Free tier hosting
-- Projects with low traffic
-- Development/staging environments
-- Budget-conscious deployments
-
----
-
-## Option 3: Fly.io
+## Option 2: Fly.io
 
 ### Overview
 Fly.io runs your app close to users by deploying containers to edge locations worldwide.
@@ -225,7 +158,7 @@ Fly.io runs your app close to users by deploying containers to edge locations wo
 
 ---
 
-## Option 4: DigitalOcean App Platform
+## Option 3: DigitalOcean App Platform
 
 ### Overview
 DigitalOcean App Platform is a Platform-as-a-Service (PaaS) that simplifies app deployment.
@@ -285,7 +218,7 @@ DigitalOcean App Platform is a Platform-as-a-Service (PaaS) that simplifies app 
 
 ---
 
-## Option 5: AWS (Advanced)
+## Option 4: AWS (Advanced)
 
 ### Options
 - **Elastic Beanstalk** - Easiest AWS option
@@ -312,7 +245,7 @@ DigitalOcean App Platform is a Platform-as-a-Service (PaaS) that simplifies app 
 
 ---
 
-## Option 6: Google Cloud Platform (Advanced)
+## Option 5: Google Cloud Platform (Advanced)
 
 ### Options
 - **Cloud Run** - Serverless containers (recommended)
@@ -337,7 +270,7 @@ DigitalOcean App Platform is a Platform-as-a-Service (PaaS) that simplifies app 
 
 ---
 
-## Option 7: Azure (Advanced)
+## Option 6: Azure (Advanced)
 
 ### Options
 - **App Service** - Managed platform
@@ -362,7 +295,7 @@ DigitalOcean App Platform is a Platform-as-a-Service (PaaS) that simplifies app 
 
 ---
 
-## Option 8: Docker Deployment (Universal)
+## Option 7: Docker Deployment (Universal)
 
 ### Overview
 Deploy using Docker to any container platform (Docker Hub, AWS ECS, Google Cloud Run, etc.)
@@ -414,14 +347,14 @@ Deploy using Docker to any container platform (Docker Hub, AWS ECS, Google Cloud
 
 ## Comparison Matrix
 
-| Feature | Railway | Render | Fly.io | DigitalOcean | AWS/GCP/Azure |
-|---------|---------|--------|--------|--------------|---------------|
-| **Free Tier** | $5 credit | Yes (spins down) | 3 VMs | No | Limited |
-| **Ease of Setup** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
-| **Performance** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Scalability** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Cost (Small)** | $5-20/mo | $0-7/mo | $0-6/mo | $5-12/mo | $10-50/mo |
-| **Best For** | Quick deploy | Free tier | Performance | Reliability | Enterprise |
+| Feature | Railway | Fly.io | DigitalOcean | AWS/GCP/Azure |
+|---------|---------|--------|--------------|---------------|
+| **Free Tier** | $5 credit | 3 VMs | No | Limited |
+| **Ease of Setup** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
+| **Performance** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Scalability** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Cost (Small)** | $5-20/mo | $0-6/mo | $5-12/mo | $10-50/mo |
+| **Best For** | Quick deploy | Performance | Reliability | Enterprise |
 
 ---
 
@@ -431,7 +364,7 @@ Deploy using Docker to any container platform (Docker Hub, AWS ECS, Google Cloud
 Start
   │
   ├─ Need free tier?
-  │   ├─ Yes → Render (free) or Fly.io (3 VMs free)
+  │   ├─ Yes → Railway ($5 credit) or Fly.io (3 VMs free)
   │   └─ No → Continue
   │
   ├─ Need easiest setup?
@@ -467,7 +400,6 @@ All platforms support:
 ## Need Help?
 
 - **Railway**: https://docs.railway.app
-- **Render**: https://render.com/docs
 - **Fly.io**: https://fly.io/docs
 - **DigitalOcean**: https://docs.digitalocean.com/products/app-platform/
 - **AWS**: https://aws.amazon.com/documentation/

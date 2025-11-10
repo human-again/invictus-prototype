@@ -48,18 +48,7 @@ git push -u origin main
    ```
 5. Deploy → Note backend URL
 
-#### Option B: Render
-
-1. Go to https://render.com → Sign up
-2. New Web Service → Connect GitHub
-3. Configure:
-   - **Root Directory**: `backend`
-   - **Build**: `pip install -r requirements.txt && python -m spacy download en_core_web_sm`
-   - **Start**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Add Environment Variables (same as Railway)
-5. Deploy
-
-#### Option C: Fly.io
+#### Option B: Fly.io
 
 ```bash
 # Install CLI
@@ -119,13 +108,12 @@ fly deploy
 
 | Platform | Free Tier | Ease of Setup | Performance | Best For |
 |----------|-----------|---------------|-------------|----------|
-| **Railway** | $5 credit/month | ⭐⭐⭐⭐⭐ Very Easy | ⭐⭐⭐⭐ Good | Quick deployment, Python apps |
-| **Render** | Yes (spins down) | ⭐⭐⭐⭐ Easy | ⭐⭐⭐ OK | Free tier, simple apps |
+| **Railway** | $5 credit/month | ⭐⭐⭐⭐⭐ Very Easy | ⭐⭐⭐⭐ Good | Quick deployment, Docker support |
 | **Fly.io** | 3 shared VMs | ⭐⭐⭐ Moderate | ⭐⭐⭐⭐⭐ Excellent | Global edge, performance |
 | **DigitalOcean** | No | ⭐⭐⭐⭐ Easy | ⭐⭐⭐⭐ Good | Reliability, paid service |
 | **AWS/GCP/Azure** | Limited | ⭐⭐ Complex | ⭐⭐⭐⭐⭐ Excellent | Enterprise, scalability |
 
-**Recommendation**: Start with **Railway** for easiest setup, or **Render** for free tier.
+**Recommendation**: Start with **Railway** for easiest setup with Docker support.
 
 ---
 
@@ -235,7 +223,6 @@ async def root():
 
 - **Vercel**: Free (100GB bandwidth, unlimited requests)
 - **Railway**: $5 free credit/month
-- **Render**: Free (spins down after inactivity)
 - **Fly.io**: 3 shared VMs free
 - **Total**: $0-5/month
 
@@ -243,7 +230,7 @@ async def root():
 
 - **Vercel Pro**: $20/month (if needed)
 - **Railway**: $5-20/month (depending on usage)
-- **Render**: $7-25/month
+- **Fly.io**: $1.94/month per VM
 - **DigitalOcean**: $5-12/month
 - **Total**: ~$15-50/month
 
@@ -268,7 +255,7 @@ async def root():
 - **Detailed Checklist**: See `DEPLOYMENT_CHECKLIST.md`
 - **Vercel Docs**: https://vercel.com/docs
 - **Railway Docs**: https://docs.railway.app
-- **Render Docs**: https://render.com/docs
+- **Fly.io Docs**: https://fly.io/docs
 
 ---
 

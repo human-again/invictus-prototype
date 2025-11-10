@@ -267,50 +267,7 @@ Choose ONE of the following options:
 
 ---
 
-### Option 2: Render
-
-**Pros**: Free tier, easy setup, automatic SSL  
-**Cons**: Free tier spins down after inactivity (cold starts)
-
-#### Steps:
-
-- [ ] **Sign up at Render**
-  - Go to https://render.com
-  - Sign up with GitHub account
-
-- [ ] **Create New Web Service**
-  - Click "New +" → "Web Service"
-  - Connect GitHub repository
-  - Select repository and branch
-
-- [ ] **Configure Service**
-  - **Name**: invictus-plan-backend
-  - **Environment**: Python 3
-  - **Region**: Choose closest to your users
-  - **Branch**: main
-  - **Root Directory**: `backend`
-  - **Build Command**: 
-    ```bash
-    pip install -r requirements.txt && python -m spacy download en_core_web_sm
-    ```
-  - **Start Command**: 
-    ```bash
-    uvicorn main:app --host 0.0.0.0 --port $PORT
-    ```
-  - **Instance Type**: Free (or paid for better performance)
-
-- [ ] **Add Environment Variables**
-  - Go to Environment section
-  - Add all required variables (same as Railway)
-
-- [ ] **Deploy**
-  - Click "Create Web Service"
-  - Render will build and deploy automatically
-  - Note the generated URL (e.g., `https://invictus-plan-backend.onrender.com`)
-
----
-
-### Option 3: Fly.io
+### Option 2: Fly.io
 
 **Pros**: Global edge deployment, generous free tier, good performance  
 **Cons**: More complex setup, requires CLI
@@ -375,7 +332,7 @@ Choose ONE of the following options:
 
 ---
 
-### Option 4: DigitalOcean App Platform
+### Option 3: DigitalOcean App Platform
 
 **Pros**: Reliable, scalable, good documentation  
 **Cons**: Paid service (no free tier), starts at $5/month
@@ -413,7 +370,7 @@ Choose ONE of the following options:
 
 ---
 
-### Option 5: AWS/GCP/Azure (Advanced)
+### Option 4: AWS/GCP/Azure (Advanced)
 
 For enterprise deployments, consider:
 - **AWS**: Elastic Beanstalk, ECS, or Lambda
@@ -424,7 +381,7 @@ These require more setup but offer better scalability and control.
 
 ---
 
-### Option 6: Docker Deployment (Universal)
+### Option 5: Docker Deployment (Universal)
 
 - [ ] **Verify Dockerfile exists** in `backend/`
 - [ ] **Build Docker image**
@@ -622,7 +579,6 @@ These require more setup but offer better scalability and control.
 - [ ] **Know how to rollback**
   - [ ] Vercel: Previous deployments in dashboard
   - [ ] Railway: Rollback in dashboard
-  - [ ] Render: Previous deployments available
   - [ ] Fly.io: `fly releases` and `fly releases rollback`
 
 - [ ] **Test rollback procedure**
@@ -658,7 +614,6 @@ These require more setup but offer better scalability and control.
 
 - **Vercel**: https://vercel.com/docs
 - **Railway**: https://docs.railway.app
-- **Render**: https://render.com/docs
 - **Fly.io**: https://fly.io/docs
 
 ### Security Resources

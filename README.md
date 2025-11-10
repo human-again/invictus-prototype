@@ -390,9 +390,10 @@ For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 #### Backend Options
 
-**Recommended platforms:**
-- **Railway** (easiest, good free tier) - See `backend/railway.json`
-- **Render** (free tier available) - See `backend/render.yaml`
+**Recommended platform:**
+- **Railway** (easiest, good free tier, Docker support) - See `backend/railway.json` and `RAILWAY_DEPLOYMENT.md`
+
+**Alternative platforms:**
 - **Fly.io** (global edge, generous free tier)
 - **DigitalOcean** (reliable, paid)
 
@@ -403,7 +404,7 @@ docker build -t invictus-backend .
 docker run -p 8000:8000 --env-file .env invictus-backend
 ```
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions for each platform.
+See [RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md) for detailed Railway deployment instructions, or [DEPLOYMENT.md](./DEPLOYMENT.md) for other platform options.
 
 ### Security Checklist
 

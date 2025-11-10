@@ -173,40 +173,7 @@ The `frontend/vercel.json` file is already configured with:
    - Railway automatically provides a domain
    - Or add a custom domain in settings
 
-### Option 2: Render
-
-**Pros**: Free tier, easy setup, automatic SSL
-**Cons**: Free tier has limitations (spins down after inactivity)
-
-#### Steps:
-
-1. **Sign up** at [render.com](https://render.com)
-
-2. **Create New Web Service**
-   - Connect GitHub repository
-   - Select repository and branch
-
-3. **Configure Service**
-   - **Name**: invictus-plan-backend
-   - **Environment**: Python 3
-   - **Build Command**: 
-     ```bash
-     pip install -r requirements.txt && python -m spacy download en_core_web_sm
-     ```
-   - **Start Command**: 
-     ```bash
-     uvicorn main:app --host 0.0.0.0 --port $PORT
-     ```
-   - **Root Directory**: `backend`
-
-4. **Environment Variables**
-   Add all variables in the Environment section
-
-5. **Deploy**
-   - Click "Create Web Service"
-   - Render will build and deploy automatically
-
-### Option 3: Fly.io
+### Option 2: Fly.io
 
 **Pros**: Global edge deployment, good performance, generous free tier
 **Cons**: More complex setup
@@ -261,7 +228,7 @@ The `frontend/vercel.json` file is already configured with:
    fly deploy
    ```
 
-### Option 4: DigitalOcean App Platform
+### Option 3: DigitalOcean App Platform
 
 **Pros**: Reliable, scalable, good documentation
 **Cons**: Paid service (no free tier)
@@ -278,7 +245,7 @@ The `frontend/vercel.json` file is already configured with:
 4. **Add Environment Variables**
 5. **Deploy**
 
-### Option 5: AWS/GCP/Azure (Advanced)
+### Option 4: AWS/GCP/Azure (Advanced)
 
 For enterprise deployments, consider:
 - **AWS**: Elastic Beanstalk, ECS, or Lambda
@@ -417,7 +384,7 @@ Configure your hosting platform to use this for health checks.
 
 ### 3. Logging
 
-- Use platform logging (Vercel, Railway, Render all provide logs)
+- Use platform logging (Vercel, Railway, Fly.io all provide logs)
 - Consider structured logging with JSON format
 - Set up log aggregation if needed
 
@@ -534,14 +501,13 @@ For static assets:
 
 - **Vercel**: Free tier includes 100GB bandwidth, unlimited requests
 - **Railway**: $5 free credit/month
-- **Render**: Free tier (spins down after inactivity)
 - **Fly.io**: 3 shared VMs free
 
 ### Paid Options (Approximate)
 
 - **Vercel Pro**: $20/month
 - **Railway**: $5-20/month depending on usage
-- **Render**: $7-25/month
+- **Fly.io**: $1.94/month per VM
 - **DigitalOcean**: $5-12/month
 
 ## Next Steps
