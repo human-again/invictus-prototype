@@ -8,8 +8,11 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Allow overriding source directory (default: backend/)
+ARG SRC_DIR=backend
+
 # Copy requirements first for better Docker layer caching
-COPY requirements.txt .
+COPY ${SRC_DIR}/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -18,12 +21,12 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Download spaCy model (do this before copying code for better caching)
 RUN python -m spacy download en_core_web_sm
 
-# Copy entrypoint script early (before COPY . . to ensure it's available)
-COPY entrypoint.sh /app/entrypoint.sh
+# Copy entrypoint script early (before copying rest of code)
+COPY ${SRC_DIR}/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Copy application code
-COPY . .
+COPY ${SRC_DIR}/ /app
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && \
