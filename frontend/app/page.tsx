@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ProteinSearch } from '@/components/ProteinSearch';
 import { PublicationList } from '@/components/PublicationList';
 import { VerificationDashboard } from '@/components/VerificationDashboard';
@@ -13,20 +13,23 @@ export default function Home() {
   const [publications, setPublications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [sessionCost, setSessionCost] = useState(0);
+  const [sessionCostLoading, setSessionCostLoading] = useState(false);
+
+  const loadSessionCost = useCallback(async () => {
+    try {
+      setSessionCostLoading(true);
+      const data = await api.getSessionCost();
+      setSessionCost(data.session_cost || 0);
+    } catch (error) {
+      console.error('Error loading session cost:', error);
+    } finally {
+      setSessionCostLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const loadSessionCost = async () => {
-      try {
-        const data = await api.getSessionCost();
-        setSessionCost(data.session_cost || 0);
-      } catch (error) {
-        console.error('Error loading session cost:', error);
-      }
-    };
     loadSessionCost();
-    const interval = setInterval(loadSessionCost, 5000); // Update every 5 seconds
-    return () => clearInterval(interval);
-  }, []);
+  }, [loadSessionCost]);
 
   const handleProteinSelect = async (protein: Protein) => {
     setSelectedProtein(protein);
@@ -65,6 +68,13 @@ export default function Home() {
               <div className="text-2xl font-bold text-blue-600">
                 ${sessionCost.toFixed(4)}
               </div>
+              <button
+                onClick={loadSessionCost}
+                disabled={sessionCostLoading}
+                className="mt-2 text-xs text-blue-700 hover:text-blue-900 disabled:text-gray-400"
+              >
+                {sessionCostLoading ? 'Refreshing…' : 'Refresh'}
+              </button>
             </div>
           </div>
         </div>
