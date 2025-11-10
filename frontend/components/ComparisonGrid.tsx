@@ -1,9 +1,9 @@
 'use client';
 
-import { ComparisonResult } from '@/lib/api';
+import { ComparisonSummary } from '@/lib/api';
 
 interface ComparisonGridProps {
-  results: ComparisonResult[];
+  results: ComparisonSummary[];
   onRerun?: (modelId: string) => void;
 }
 

@@ -316,34 +316,27 @@ export interface ModelInfo {
   timeout: number;
 }
 
-export interface ComparisonResult {
-  model_id: string;
-  status: 'success' | 'failed' | 'timeout';
-  time_s: number;
-  tokens: number;
-  cost: number;
-  prompt_used: string;
-  [key: string]: any;
-}
-
-export interface SearchComparisonResult {
+export interface ComparisonSummary {
   model_id: string;
   status: 'success' | 'failed' | 'timeout';
   time_s?: number;
   tokens?: number;
   cost?: number;
+  [key: string]: any;
+}
+
+export interface ComparisonResult extends ComparisonSummary {
+  prompt_used?: string;
+}
+
+export interface SearchComparisonResult extends ComparisonSummary {
   error?: string;
   results: any[];
   relevancy_score?: number;
   explanation?: string;
 }
 
-export interface ExtractComparisonResult {
-  model_id: string;
-  status: 'success' | 'failed' | 'timeout';
-  time_s?: number;
-  tokens?: number;
-  cost?: number;
+export interface ExtractComparisonResult extends ComparisonSummary {
   error?: string;
   extracted_text: string;
   entities: Entities;
@@ -351,12 +344,7 @@ export interface ExtractComparisonResult {
   confidence?: number;
 }
 
-export interface SummarizeComparisonResult {
-  model_id: string;
-  status: 'success' | 'failed' | 'timeout';
-  time_s?: number;
-  tokens?: number;
-  cost?: number;
+export interface SummarizeComparisonResult extends ComparisonSummary {
   error?: string;
   structured?: Protocol;
   readable?: string;

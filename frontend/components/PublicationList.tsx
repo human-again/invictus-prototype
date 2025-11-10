@@ -4,6 +4,17 @@ import { useState } from 'react';
 import { api, type Publication, type ProtocolResponse } from '@/lib/api';
 import { ProtocolViewer } from './ProtocolViewer';
 
+const getPublicationKey = (publication: Publication): string => {
+  if (publication.pmid) return publication.pmid;
+  if (publication.doi) return publication.doi;
+  if (publication.url) return publication.url;
+  if (publication.title) return `title:${publication.title}`;
+  if (publication.journal || publication.year) {
+    return `ref:${publication.journal ?? 'journal'}-${publication.year ?? 'year'}`;
+  }
+  return `publication-${publication.authors ?? 'unknown'}`;
+};
+
 export function PublicationList({
   publications,
   proteinName,
@@ -15,7 +26,7 @@ export function PublicationList({
   const [protocols, setProtocols] = useState<Record<string, ProtocolResponse>>({});
 
   const handleExtract = async (publication: Publication) => {
-    const key = publication.pmid || publication.url;
+    const key = getPublicationKey(publication);
     setExtracting(key);
 
     try {
@@ -56,7 +67,7 @@ export function PublicationList({
   return (
     <div className="space-y-4">
       {publications.map((pub) => {
-        const key = pub.pmid || pub.url;
+        const key = getPublicationKey(pub);
         const protocol = protocols[key];
         const isExtracting = extracting === key;
 

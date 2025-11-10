@@ -47,17 +47,16 @@ export default function ModelSelector({
   const loadModels = async () => {
     try {
       setLoading(true);
-      const [modelsResponse, top5] = await Promise.all([
+      const [modelsResponse, top5Response] = await Promise.all([
         api.getModels(),
         api.getTop5Models(task),
       ]);
-      
-      // Handle both array and object response formats
-      const models = Array.isArray(modelsResponse) ? modelsResponse : (modelsResponse?.models || []);
-      
+
+      const models = modelsResponse ?? [];
+      const top5List = Array.isArray(top5Response?.models) ? top5Response.models : [];
+
       console.log('Loaded models:', models.length);
-      console.log('Models response type:', Array.isArray(modelsResponse) ? 'array' : typeof modelsResponse);
-      
+
       if (models.length > 0) {
         console.log('Sample model:', models[0]);
         console.log('Sample model keys:', Object.keys(models[0]));
@@ -73,12 +72,12 @@ export default function ModelSelector({
         }
       }
       setAllModels(models);
-      setTop5Models(top5.models || []);
+      setTop5Models(top5List);
       
       // Initialize selection with top models
-      if (selectedModels.length === 0 && top5.models) {
+      if (selectedModels.length === 0 && top5List.length > 0) {
         const presetCount = MODE_PRESETS[mode];
-        onSelectionChange(top5.models.slice(0, presetCount).map((m: ModelInfo) => m.id));
+        onSelectionChange(top5List.slice(0, presetCount).map((m: ModelInfo) => m.id));
       }
     } catch (error) {
       console.error('Error loading models:', error);
