@@ -123,7 +123,11 @@ export default function Screen3Summarize({
   };
 
   // Get first successful result for before/after comparison
-  const getBeforeAfterData = () => {
+  const getBeforeAfterData = (): {
+    before: string;
+    after: string;
+    format: "readable" | "structured";
+  } | null => {
     if (!selectedExtraction) return null;
 
     const firstSuccess = summarizationResults.find(
@@ -138,7 +142,9 @@ export default function Screen3Summarize({
           ? firstSuccess.readable || ""
           : JSON.stringify(firstSuccess.structured, null, 2),
       format:
-        format === "readable" || format === "both" ? "readable" : "structured",
+        (format === "readable" || format === "both"
+          ? "readable"
+          : "structured") as "readable" | "structured",
     };
   };
 

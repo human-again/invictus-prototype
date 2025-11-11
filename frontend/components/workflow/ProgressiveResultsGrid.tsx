@@ -166,11 +166,11 @@ export default function ProgressiveResultsGrid({
           setResults((prev) => {
             if (activeRunRef.current !== runId) return prev;
             const filtered = prev.filter((r) => r.model_id !== modelId);
-            const updated = [
+            const updated: SearchComparisonResult[] = [
               ...filtered,
               {
                 model_id: modelId,
-                status: "failed",
+                status: "failed" as const,
                 error: message,
                 results: [],
                 time_s: 0,
