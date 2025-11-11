@@ -60,6 +60,15 @@ async def search_protein(query: str = Query(..., description="Protein name or id
     results = uniprot.search_proteins(query)
     return {"results": results}
 
+
+@app.get("/protein/{uniprot_id}/details")
+async def get_protein_details(uniprot_id: str):
+    """Get detailed protein information including expression medium, purification factors"""
+    details = uniprot.get_protein_details(uniprot_id)
+    if not details:
+        raise HTTPException(status_code=404, detail=f"Protein {uniprot_id} not found")
+    return details
+
 @app.get("/publications/{uniprot_id}")
 async def get_publications(
     uniprot_id: str, 
@@ -144,6 +153,17 @@ async def extract_entities(request: ExtractEntitiesRequest):
     """Extract chemicals, equipment, and conditions from text"""
     entities = extraction.extract_entities(request.text)
     return entities
+
+
+class ExtractYieldRequest(BaseModel):
+    text: str
+
+
+@app.post("/publications/extract-yield")
+async def extract_yield(request: ExtractYieldRequest):
+    """Extract yield information from publication text"""
+    yield_info = extraction.extract_yield(request.text)
+    return {"yield": yield_info} if yield_info else {"yield": None}
 
 
 class SummarizeProtocolRequest(BaseModel):
@@ -439,6 +459,16 @@ async def compare_search(request: CompareSearchRequest):
         )
         cache.set(cache_key, candidates, ttl=3600)
     
+    # Build lookup for candidate metadata
+    def normalize_title(title: str) -> str:
+        return re.sub(r'\s+', ' ', title).strip().lower() if title else ""
+
+    candidate_lookup = {
+        normalize_title(candidate.get("title", "")): candidate
+        for candidate in candidates
+        if candidate.get("title")
+    }
+
     # Run comparisons
     results = []
     for model_id in request.models:
@@ -506,11 +536,52 @@ async def compare_search(request: CompareSearchRequest):
                             
                             # If we have a title, create normalized item
                             if title:
+                                authors = item.get("authors") or item.get("author") or ""
+                                if isinstance(authors, list):
+                                    authors = ", ".join([str(a) for a in authors if a])
+
+                                year = item.get("year") or item.get("publication_year") or item.get("date") or ""
+                                if isinstance(year, int):
+                                    year = str(year)
+
                                 normalized_item = {
                                     "title": title,
                                     "score": float(score) if score else 0,
-                                    "explanation": explanation
+                                    "explanation": explanation,
+                                    "authors": authors or "",
+                                    "journal": item.get("journal") or item.get("venue") or item.get("source") or "",
+                                    "year": year or "",
+                                    "url": item.get("url") or item.get("link") or item.get("pubmed_url") or "",
+                                    "doi": item.get("doi") or item.get("DOI") or "",
+                                    "pmid": item.get("pmid") or item.get("PMID") or "",
+                                    "source": item.get("source") or ""
                                 }
+
+                                # Merge candidate metadata when available
+                                candidate = candidate_lookup.get(normalize_title(title))
+                                if candidate:
+                                    if not normalized_item["authors"]:
+                                        normalized_item["authors"] = candidate.get("authors", "")
+                                    if not normalized_item["journal"]:
+                                        normalized_item["journal"] = candidate.get("journal", "")
+                                    if not normalized_item["year"]:
+                                        normalized_item["year"] = candidate.get("year", "")
+                                    if not normalized_item["url"]:
+                                        normalized_item["url"] = candidate.get("url", "")
+                                    if not normalized_item["doi"]:
+                                        normalized_item["doi"] = candidate.get("doi", "")
+                                    if not normalized_item["pmid"]:
+                                        normalized_item["pmid"] = candidate.get("pmid", "")
+                                    if not normalized_item["source"]:
+                                        normalized_item["source"] = candidate.get("source", "")
+                                    # Carry over any additional metadata
+                                    if candidate.get("citation_count") is not None:
+                                        normalized_item["citation_count"] = candidate.get("citation_count")
+                                    if candidate.get("influential_citations") is not None:
+                                        normalized_item["influential_citations"] = candidate.get("influential_citations")
+                                    if candidate.get("pdf_url"):
+                                        normalized_item["pdf_url"] = candidate.get("pdf_url")
+
                                 normalized_results.append(normalized_item)
                             # If no title but we have other publication data, try to construct it
                             elif item.get("url") or item.get("abstract"):
@@ -518,8 +589,16 @@ async def compare_search(request: CompareSearchRequest):
                                 normalized_item = {
                                     "title": item.get("url", "").split("/")[-1] if item.get("url") else "Untitled",
                                     "score": float(score) if score else 0,
-                                    "explanation": explanation or item.get("abstract", "")[:100]
+                                    "explanation": explanation or item.get("abstract", "")[:100],
+                                    "authors": "",
+                                    "journal": "",
+                                    "year": "",
+                                    "url": item.get("url", ""),
+                                    "doi": item.get("doi") or "",
+                                    "pmid": item.get("pmid") or "",
+                                    "source": item.get("source") or ""
                                 }
+
                                 normalized_results.append(normalized_item)
                     
                     parsed_results = normalized_results
@@ -630,6 +709,10 @@ async def compare_extract(request: CompareExtractRequest):
             logger.info(f"Fetching full text for publication: {request.publication.get('title', 'Unknown')}")
             full_text = publications.get_publication_full_text_enhanced(request.publication)
             if full_text:
+                # Double-check validation before caching
+                if not publications.validate_publication_text(full_text, request.publication):
+                    logger.error(f"Fetched text failed validation for: {request.publication.get('title', 'Unknown')}. This may indicate a mismatch.")
+                    # Still cache it but log the warning - the AI prompt will also validate
                 cache.set(pub_key, full_text, ttl=3600)
                 logger.info(f"Fetched and cached full text ({len(full_text)} chars)")
         
@@ -637,14 +720,27 @@ async def compare_extract(request: CompareExtractRequest):
         if not full_text:
             abstract = request.publication.get("abstract", "")
             if abstract and len(abstract) > 100:
-                logger.warning(f"Full text not available for publication: {request.publication.get('title', 'Unknown')}. Using abstract as fallback ({len(abstract)} chars).")
-                full_text = abstract
+                # Validate abstract matches publication
+                if publications.validate_publication_text(abstract, request.publication):
+                    logger.warning(f"Full text not available for publication: {request.publication.get('title', 'Unknown')}. Using abstract as fallback ({len(abstract)} chars).")
+                    full_text = abstract
+                else:
+                    logger.error(f"Abstract failed validation for: {request.publication.get('title', 'Unknown')}. Abstract may be from wrong publication.")
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Publication text validation failed. The abstract does not match the expected publication: {request.publication.get('title', 'Unknown')}. Please try selecting a different publication."
+                    )
             else:
                 logger.warning(f"Full text not available for publication: {request.publication.get('title', 'Unknown')}. No abstract available either.")
                 raise HTTPException(
                     status_code=404, 
                     detail=f"Publication full text not available for: {request.publication.get('title', 'Unknown')}. The publication may not have accessible full text or abstract. Try selecting a different publication with available full text."
                 )
+        
+        # Final validation check before sending to AI models
+        if not publications.validate_publication_text(full_text, request.publication):
+            logger.error(f"Final validation failed for: {request.publication.get('title', 'Unknown')}. Text may be from wrong publication.")
+            # Still proceed but log error - the AI prompt will also validate and catch this
         
         # Truncate if needed
         truncation_result = truncate_content(full_text, max_tokens=4000)

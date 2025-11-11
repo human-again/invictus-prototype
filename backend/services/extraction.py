@@ -5,7 +5,7 @@ Includes Materials and Methods section detection
 """
 from bs4 import BeautifulSoup
 import re
-from typing import Optional
+from typing import Optional, Dict
 import spacy
 import xml.etree.ElementTree as ET
 
@@ -322,5 +322,87 @@ def clean_and_prepare_text(text: str, max_tokens: int = 4000, preserve_structure
         "token_count": token_count,
         "entities": entities
     }
+
+
+def extract_yield(text: str) -> Optional[Dict]:
+    """
+    Extract yield information from publication text
+    
+    Args:
+        text: Publication text (abstract, full text, or methods section)
+    
+    Returns:
+        Dictionary with yield information or None if not found
+        Format: {
+            "yield": "value with units",
+            "yield_value": float or None,
+            "yield_units": "mg/L, %, etc.",
+            "context": "extraction yield, purification yield, etc.",
+            "raw_text": "original text snippet"
+        }
+    """
+    if not text:
+        return None
+    
+    import re
+    
+    # Patterns for yield extraction
+    yield_patterns = [
+        # Protein yield patterns
+        r'(?:protein\s+)?yield\s*(?:of|was|is|:)?\s*([\d.]+)\s*(?:mg/L|mg/l|mg\s*per\s*L|%|fold|times)',
+        r'([\d.]+)\s*(?:mg/L|mg/l|mg\s*per\s*L)\s*(?:protein\s+)?yield',
+        r'yielded\s+([\d.]+)\s*(?:mg/L|mg/l|mg\s*per\s*L|%|fold)',
+        r'yield\s*(?:of|was|is)\s*([\d.]+)\s*(?:mg/L|mg/l|mg\s*per\s*L|%)',
+        # Percentage yield
+        r'(?:final\s+)?yield\s*(?:of|was|is|:)?\s*([\d.]+)\s*%',
+        r'([\d.]+)\s*%\s*(?:yield|recovery)',
+        # Fold purification
+        r'([\d.]+)\s*(?:fold|times)\s*(?:purification|enrichment)',
+        r'purified\s+([\d.]+)\s*(?:fold|times)',
+    ]
+    
+    # Search for yield patterns
+    for pattern in yield_patterns:
+        matches = re.finditer(pattern, text, re.IGNORECASE)
+        for match in matches:
+            value_str = match.group(1)
+            try:
+                value = float(value_str)
+                full_match = match.group(0)
+                
+                # Determine units
+                units = "unknown"
+                if "mg/L" in full_match.lower() or "mg per l" in full_match.lower():
+                    units = "mg/L"
+                elif "%" in full_match:
+                    units = "%"
+                elif "fold" in full_match.lower() or "times" in full_match.lower():
+                    units = "fold"
+                
+                # Determine context
+                context = "protein yield"
+                if "purification" in full_match.lower():
+                    context = "purification yield"
+                elif "extraction" in full_match.lower():
+                    context = "extraction yield"
+                elif "recovery" in full_match.lower():
+                    context = "recovery yield"
+                
+                # Get surrounding context (50 chars before and after)
+                start = max(0, match.start() - 50)
+                end = min(len(text), match.end() + 50)
+                context_text = text[start:end].strip()
+                
+                return {
+                    "yield": full_match,
+                    "yield_value": value,
+                    "yield_units": units,
+                    "context": context,
+                    "raw_text": context_text
+                }
+            except ValueError:
+                continue
+    
+    return None
 
 

@@ -24,8 +24,11 @@ export default function CostEstimator({
 
   useEffect(() => {
     loadEstimate();
-    loadSessionCost();
   }, [task, models, contentLength]);
+
+  useEffect(() => {
+    loadSessionCost();
+  }, []);
 
   const loadEstimate = async () => {
     try {

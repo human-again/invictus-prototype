@@ -1,21 +1,26 @@
-'use client';
+"use client";
 
-import { ComparisonSummary } from '@/lib/api';
+import type { ComparisonSummary } from "@/lib/api";
 
 interface ComparisonGridProps {
   results: ComparisonSummary[];
   onRerun?: (modelId: string) => void;
 }
 
-export default function ComparisonGrid({ results, onRerun }: ComparisonGridProps) {
+export default function ComparisonGrid({
+  results,
+  onRerun,
+}: ComparisonGridProps) {
   const getStatusBadge = (status: string) => {
     const styles = {
-      success: 'bg-green-100 text-green-800',
-      failed: 'bg-red-100 text-red-800',
-      timeout: 'bg-yellow-100 text-yellow-800',
+      success: "bg-green-100 text-green-800",
+      failed: "bg-red-100 text-red-800",
+      timeout: "bg-yellow-100 text-yellow-800",
     };
     return (
-      <span className={`px-2 py-1 text-xs rounded-full ${styles[status as keyof typeof styles] || styles.failed}`}>
+      <span
+        className={`px-2 py-1 text-xs rounded-full ${styles[status as keyof typeof styles] || styles.failed}`}
+      >
         {status}
       </span>
     );
@@ -54,9 +59,14 @@ export default function ComparisonGrid({ results, onRerun }: ComparisonGridProps
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {results.map((result) => (
-              <tr key={result.model_id} className="hover:bg-blue-50 transition-colors">
+              <tr
+                key={result.model_id}
+                className="hover:bg-blue-50 transition-colors"
+              >
                 <td className="px-4 py-4 whitespace-nowrap">
-                  <div className="text-sm font-semibold text-gray-900">{result.model_id}</div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {result.model_id}
+                  </div>
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap">
                   {getStatusBadge(result.status)}
@@ -74,6 +84,7 @@ export default function ComparisonGrid({ results, onRerun }: ComparisonGridProps
                   {onRerun && (
                     <button
                       onClick={() => onRerun(result.model_id)}
+                      type="button"
                       className="text-blue-600 hover:text-blue-800 font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100"
                     >
                       🔄 Rerun
@@ -88,4 +99,3 @@ export default function ComparisonGrid({ results, onRerun }: ComparisonGridProps
     </div>
   );
 }
-

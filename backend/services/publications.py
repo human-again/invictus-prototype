@@ -484,6 +484,8 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
     5. PubMed abstract
     6. Fetch from original URL (HTML fallback)
     
+    All fetched text is validated to ensure it matches the expected publication.
+    
     Args:
         publication: Publication dictionary with metadata
     
@@ -498,8 +500,12 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
     
     # Priority 1: Check if Perplexity provided protocol preview
     if publication.get("protocol_preview"):
-        logger.info(f"Found Perplexity protocol_preview for {title}")
-        return publication.get("protocol_preview")
+        protocol_preview = publication.get("protocol_preview")
+        if validate_publication_text(protocol_preview, publication):
+            logger.info(f"Found Perplexity protocol_preview for {title} (validated)")
+            return protocol_preview
+        else:
+            logger.warning(f"Perplexity protocol_preview failed validation for {title}")
     else:
         logger.debug(f"No protocol_preview available for {title}")
     
@@ -509,8 +515,11 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
         logger.info(f"Attempting to extract text from PDF: {pdf_url}")
         pdf_text = extract_text_from_pdf(pdf_url)
         if pdf_text:
-            logger.info(f"Successfully extracted text from PDF ({len(pdf_text)} chars)")
-            return pdf_text
+            if validate_publication_text(pdf_text, publication):
+                logger.info(f"Successfully extracted text from PDF ({len(pdf_text)} chars, validated)")
+                return pdf_text
+            else:
+                logger.warning(f"PDF text failed validation for {title} - text may be from wrong publication")
         else:
             logger.warning(f"Failed to extract text from PDF: {pdf_url}")
     else:
@@ -525,8 +534,11 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
             logger.info(f"Found Unpaywall PDF URL: {unpaywall_pdf_url}")
             pdf_text = extract_text_from_pdf(unpaywall_pdf_url)
             if pdf_text:
-                logger.info(f"Successfully extracted text from Unpaywall PDF ({len(pdf_text)} chars)")
-                return pdf_text
+                if validate_publication_text(pdf_text, publication):
+                    logger.info(f"Successfully extracted text from Unpaywall PDF ({len(pdf_text)} chars, validated)")
+                    return pdf_text
+                else:
+                    logger.warning(f"Unpaywall PDF text failed validation for {title} - text may be from wrong publication")
             else:
                 logger.warning(f"Failed to extract text from Unpaywall PDF: {unpaywall_pdf_url}")
         else:
@@ -540,8 +552,11 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
         logger.info(f"Attempting PubMed Central full text for PMID: {pmid}")
         pmc_text = get_publication_full_text(pmid)
         if pmc_text:
-            logger.info(f"Successfully fetched PMC full text ({len(pmc_text)} chars)")
-            return pmc_text
+            if validate_publication_text(pmc_text, publication):
+                logger.info(f"Successfully fetched PMC full text ({len(pmc_text)} chars, validated)")
+                return pmc_text
+            else:
+                logger.warning(f"PMC text failed validation for {title} - text may be from wrong publication")
         else:
             logger.debug(f"No PMC full text available for PMID: {pmid}")
     else:
@@ -564,8 +579,11 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
                 abstract_elem = root.find(".//AbstractText")
                 if abstract_elem is not None:
                     abstract_text = "".join(abstract_elem.itertext()).strip()
-                    logger.info(f"Successfully fetched PubMed abstract ({len(abstract_text)} chars)")
-                    return abstract_text
+                    if validate_publication_text(abstract_text, publication):
+                        logger.info(f"Successfully fetched PubMed abstract ({len(abstract_text)} chars, validated)")
+                        return abstract_text
+                    else:
+                        logger.warning(f"PubMed abstract failed validation for {title}")
                 else:
                     logger.debug(f"No abstract found in PubMed response for PMID: {pmid}")
             else:
@@ -583,8 +601,11 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
                 html_text = response.text
                 cleaned = extraction.clean_html(html_text)
                 if cleaned and len(cleaned) > 100:  # Minimum content check
-                    logger.info(f"Successfully extracted text from URL ({len(cleaned)} chars)")
-                    return cleaned
+                    if validate_publication_text(cleaned, publication):
+                        logger.info(f"Successfully extracted text from URL ({len(cleaned)} chars, validated)")
+                        return cleaned
+                    else:
+                        logger.warning(f"URL text failed validation for {title} - URL may point to wrong publication")
                 else:
                     logger.warning(f"Extracted text from URL too short or empty: {len(cleaned) if cleaned else 0} chars")
             else:
@@ -592,7 +613,7 @@ def get_publication_full_text_enhanced(publication: Dict) -> Optional[str]:
         except Exception as e:
             logger.warning(f"Error fetching publication URL {publication_url}: {e}")
 
-    logger.warning(f"All methods failed to retrieve full text for: {title} (DOI: {doi}, PMID: {pmid}, URL: {publication_url})")
+    logger.warning(f"All methods failed to retrieve validated full text for: {title} (DOI: {doi}, PMID: {pmid}, URL: {publication_url})")
     return None
 
 
@@ -645,6 +666,94 @@ def get_publications(uniprot_id: str, protein_name: str = "", limit: int = 5, me
     return results[:limit]
 
 
+def validate_publication_text(text: str, expected_publication: Dict) -> bool:
+    """
+    Validate that fetched text matches the expected publication
+    
+    Args:
+        text: Fetched publication text
+        expected_publication: Dictionary with expected publication metadata (title, authors, year, journal)
+    
+    Returns:
+        True if text appears to match the expected publication, False otherwise
+    """
+    if not text or not expected_publication:
+        return False
+    
+    text_lower = text.lower()
+    
+    # Check title match (at least 3 significant words from title should appear)
+    expected_title = expected_publication.get("title", "").lower()
+    if expected_title:
+        # Extract significant words (3+ characters, not common words)
+        title_words = [w for w in expected_title.split() if len(w) >= 3 and w not in ["the", "and", "for", "with", "from", "that", "this"]]
+        if title_words:
+            # Check if at least 50% of significant title words appear in text
+            matching_words = sum(1 for word in title_words if word in text_lower)
+            if matching_words < max(2, len(title_words) * 0.5):
+                return False
+    
+    # Check author match (at least one author surname should appear)
+    expected_authors = expected_publication.get("authors", "").lower()
+    if expected_authors:
+        # Extract author surnames (first word before comma, or first word if no comma)
+        author_surnames = []
+        for author in expected_authors.split(","):
+            author = author.strip()
+            if author:
+                # Get first word (surname) - handle "et al" and "and"
+                surname = author.split()[0] if author.split() else ""
+                if surname and len(surname) >= 3 and surname not in ["et", "al", "and"]:
+                    author_surnames.append(surname)
+        
+        if author_surnames:
+            # At least one author surname should appear in text
+            if not any(surname in text_lower for surname in author_surnames):
+                return False
+    
+    # Check year match (year should appear in text)
+    expected_year = expected_publication.get("year", "")
+    if expected_year:
+        if expected_year not in text:
+            # Year might be in different format, check if it's close
+            try:
+                year_int = int(expected_year)
+                # Check if year appears in text (allowing for some variation)
+                if str(year_int) not in text and str(year_int - 1) not in text and str(year_int + 1) not in text:
+                    return False
+            except ValueError:
+                pass
+    
+    return True
+
+
+def get_pmc_id_from_pmid(pmid: str) -> Optional[str]:
+    """
+    Convert PubMed ID to PubMed Central ID
+    
+    Args:
+        pmid: PubMed ID
+    
+    Returns:
+        PMC ID if available, None otherwise
+    """
+    try:
+        url = "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"
+        params = {
+            "ids": pmid,
+            "format": "json"
+        }
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            records = data.get("records", [])
+            if records and records[0].get("pmcid"):
+                return records[0]["pmcid"]
+    except Exception as e:
+        print(f"Error converting PMID {pmid} to PMC ID: {e}")
+    return None
+
+
 def get_publication_full_text(pmid: str) -> Optional[str]:
     """
     Retrieve full text of a publication by PMID (if available)
@@ -657,26 +766,35 @@ def get_publication_full_text(pmid: str) -> Optional[str]:
         Full text content or None if not available
     """
     try:
-        # Try to fetch from PubMed Central (PMC) first
-        url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-        params = {
-            "db": "pmc",
-            "id": pmid,
-            "retmode": "xml"
-        }
+        # First, try to get PMC ID from PMID
+        pmc_id = get_pmc_id_from_pmid(pmid)
         
-        response = requests.get(url, params=params, timeout=15)
-        if response.status_code == 200:
-            # Try to parse PMC XML and extract Materials and Methods section
-            parsed_text = extraction.parse_pmc_xml(response.text)
-            if parsed_text:
-                return parsed_text
-            # If parsing fails, return raw XML for fallback processing
-            return response.text
+        if pmc_id:
+            # Try to fetch from PubMed Central (PMC) using PMC ID
+            url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+            params = {
+                "db": "pmc",
+                "id": pmc_id,
+                "retmode": "xml"
+            }
+            
+            response = requests.get(url, params=params, timeout=15)
+            if response.status_code == 200:
+                # Try to parse PMC XML and extract Materials and Methods section
+                parsed_text = extraction.parse_pmc_xml(response.text)
+                if parsed_text:
+                    return parsed_text
+                # If parsing fails, return raw XML for fallback processing
+                return response.text
         
         # Fallback to PubMed abstract
-        params["db"] = "pubmed"
-        params["rettype"] = "abstract"
+        url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+        params = {
+            "db": "pubmed",
+            "id": pmid,
+            "rettype": "abstract",
+            "retmode": "xml"
+        }
         response = requests.get(url, params=params, timeout=15)
         response.raise_for_status()
         

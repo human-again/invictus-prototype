@@ -78,6 +78,7 @@ def search_proteins(query: str, limit: int = 5) -> List[Dict]:
 def get_protein_details(uniprot_id: str) -> Optional[Dict]:
     """
     Get detailed information for a specific UniProt ID
+    Enhanced to include expression medium, purification factors, and other key information
     
     Args:
         uniprot_id: UniProt accession ID
@@ -87,22 +88,71 @@ def get_protein_details(uniprot_id: str) -> Optional[Dict]:
     """
     try:
         url = f"https://rest.uniprot.org/uniprotkb/{uniprot_id}"
+        # NOTE:
+        # The UniProt REST API v3 no longer supports requesting multiple legacy
+        # field names like ``comments`` or ``features`` in a single call. Passing
+        # the old field list results in a 400 response with an "Invalid fields
+        # parameter" error, which bubbles up as a 404 to the frontend. Request
+        # the full JSON payload instead and let downstream parsing select the
+        # pieces we need.
         params = {
-            "format": "json",
-            "fields": "accession,id,protein_name,organism_name,function,sequence"
+            "format": "json"
         }
         
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
         
         entry = response.json()
-        return {
+        
+        # Extract basic info
+        protein_info = {
             "id": entry.get("primaryAccession", ""),
             "name": entry.get("proteinDescription", {}).get("recommendedName", {}).get("fullName", {}).get("value", ""),
             "organism": entry.get("organism", {}).get("scientificName", ""),
-            "function": entry.get("comments", [{}])[0].get("texts", [{}])[0].get("value", "") if entry.get("comments") else "",
-            "sequence": entry.get("sequence", {}).get("value", "")
+            "function": "",
+            "sequence": entry.get("sequence", {}).get("value", ""),
+            "expression_medium": [],
+            "solubility": "",
+            "stability": "",
+            "purification_tags": [],
+            "other_factors": []
         }
+        
+        # Extract function from comments
+        if "comments" in entry:
+            for comment in entry["comments"]:
+                comment_type = comment.get("commentType", "")
+                if comment_type == "FUNCTION" and "texts" in comment:
+                    if comment["texts"]:
+                        protein_info["function"] = comment["texts"][0].get("value", "")
+                
+                # Extract expression system information
+                elif comment_type == "BIOTECHNOLOGY" and "texts" in comment:
+                    for text in comment["texts"]:
+                        value = text.get("value", "")
+                        if "expression" in value.lower() or "medium" in value.lower():
+                            protein_info["expression_medium"].append(value)
+                
+                # Extract solubility information
+                elif comment_type == "SOLUBILITY" and "texts" in comment:
+                    if comment["texts"]:
+                        protein_info["solubility"] = comment["texts"][0].get("value", "")
+                
+                # Extract stability information
+                elif comment_type == "STABILITY" and "texts" in comment:
+                    if comment["texts"]:
+                        protein_info["stability"] = comment["texts"][0].get("value", "")
+        
+        # Extract purification tags from features
+        if "features" in entry:
+            for feature in entry["features"]:
+                feature_type = feature.get("type", "")
+                if feature_type in ["CHAIN", "PEPTIDE", "REGION"]:
+                    description = feature.get("description", "")
+                    if any(tag in description.lower() for tag in ["his-tag", "gst", "maltose", "flag", "ha", "myc", "streptavidin"]):
+                        protein_info["purification_tags"].append(description)
+        
+        return protein_info
     
     except requests.exceptions.RequestException as e:
         print(f"Error fetching protein details: {e}")

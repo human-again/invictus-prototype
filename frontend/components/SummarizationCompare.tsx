@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SummarizeComparisonResult, Protocol } from '@/lib/api';
 import ComparisonGrid from './ComparisonGrid';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -92,7 +92,27 @@ export default function SummarizationCompare({
   onExport,
 }: SummarizationCompareProps) {
   const [selectedView, setSelectedView] = useState<'structured' | 'readable'>('readable');
-  const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
+  // Initialize with all model IDs expanded by default
+  const [expandedModels, setExpandedModels] = useState<Set<string>>(() => {
+    const initialSet = new Set<string>();
+    results.forEach((result) => {
+      if (result.status === 'success') {
+        initialSet.add(result.model_id);
+      }
+    });
+    return initialSet;
+  });
+
+  // Update expanded models when results change
+  useEffect(() => {
+    const newExpanded = new Set<string>();
+    results.forEach((result) => {
+      if (result.status === 'success') {
+        newExpanded.add(result.model_id);
+      }
+    });
+    setExpandedModels(newExpanded);
+  }, [results]);
 
   const toggleModel = (modelId: string) => {
     const newExpanded = new Set(expandedModels);

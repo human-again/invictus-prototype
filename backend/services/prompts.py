@@ -52,6 +52,12 @@ Return results as a JSON array with this exact format:
 [
   {{
     "title": "Publication title",
+    "authors": "Primary Author et al.",
+    "journal": "Journal Name",
+    "year": "2024",
+    "url": "https://example.com/fulltext-or-pubmed-link",
+    "doi": "10.1234/example.doi",
+    "pmid": "12345678",
     "score": 85,
     "explanation": "Brief reliability justification including journal quality, methodological rigor, data availability, and field context"
   }},
@@ -62,16 +68,23 @@ IMPORTANT: Return ONLY valid JSON array, no markdown, no code blocks, no additio
 
     "extract_methods": """You are extracting the Materials and Methods section from a scientific publication about protein {protein_name}.
 
-Citation context:
+CRITICAL: Before extracting, you MUST verify that the publication text below matches the expected citation. If the text does not match, you MUST immediately stop and report the mismatch.
+
+Expected citation:
 Title: {title}
 Authors: {authors}
 Journal: {journal}
 Year: {year}
 
-Publication text:
+Publication text to analyze:
 {publication_text}
 
-Instructions:
+FIRST STEP - VALIDATION:
+1. Check if the title, authors, and year mentioned in the text match the expected citation above.
+2. If they do NOT match, respond with: "ERROR: Publication mismatch. The provided text does not match the expected citation. Expected: {title} ({authors}, {year}). Please verify the correct publication text is being used."
+3. If they DO match, proceed with extraction.
+
+If validation passes, proceed with extraction:
 - Extract ONLY the Materials and Methods section
 - Preserve structure, subsections, and formatting
 - Include all quantitative details (numbers, units, concentrations)
