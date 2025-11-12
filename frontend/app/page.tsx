@@ -144,11 +144,10 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Protein Synthesis AI Agent
+                Protocol Extractor
               </h1>
               <p className="mt-2 text-gray-800">
-                Search proteins, extract synthesis protocols from publications,
-                and verify accuracy
+                AI-powered platform for extracting and comparing protein synthesis protocols from scientific publications
               </p>
             </div>
             <div className="text-right">
